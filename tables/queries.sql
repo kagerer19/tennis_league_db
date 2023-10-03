@@ -138,28 +138,26 @@ from PLAYERS
 where PLAYERNO in (select PLAYERNO from MATCHES where WON >= 1);
 
 /* 3. output of playerNo and name of the players who have received at least one penalty */
-select PLAYERNO, NAME from PLAYERS where PLAYERNO in (select count(DISTINCT PLAYERNO) from PENALTIES);
+SELECT PLAYERNO, NAME
+FROM PLAYERS
+WHERE PLAYERNO IN
+      (SELECT PLAYERNO
+       FROM PENALTIES
+       GROUP BY PLAYERNO
+       HAVING COUNT(PLAYERNO) > 1);
 
 /* 4. output of playerNo and name of the players, who have received at least one penalty over 50.*/
+select PLAYERNO, NAME
+from PLAYERS
+where PLAYERNO in (select PLAYERNO from PENALTIES where AMOUNT > 50);
 
 /* 5. output of PlayerNo and name of players born in the same year as R. Parmenter*/
+select PLAYERNO, NAME
+from PLAYERS
+where YEAR_OF_BIRTH in (select YEAR_OF_BIRTH from PLAYERS where YEAR_OF_BIRTH = 1963);
+
 
 /* 6. output of playerNo and name of the oldest player from Stratford*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select PLAYERNO, NAME
+from PLAYERS
+where YEAR_OF_BIRTH in (select min(YEAR_OF_BIRTH) from PLAYERS where TOWN = 'Stratford');
