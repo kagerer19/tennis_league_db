@@ -6,7 +6,7 @@ Create the tables and insert data from the following files [Parts insert and cre
 1-8 Tennis queries
 1. output of PLAYERNO, NAME of players born after 1960.
 
-2. output of PLAYERNO, NAME and TOWN of all female players who do not reside in Strat- ford.
+2. output of PLAYERNO, NAME and TOWN of all female players who do not reside in Stratford.
 
 3. output of player numbers of players who joined the club between 1970 and 1980.
 
