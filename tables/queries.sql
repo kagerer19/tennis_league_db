@@ -223,56 +223,36 @@ WHERE PLAYERNO IN
 
 /* 9. NAME and INITIALS of the player with the highest penalty amount */
 
-
-
+SELECT NAME, INITIALS
+FROM PLAYERS
+WHERE PLAYERNO IN
+      (SELECT PLAYERNO
+       FROM PENALTIES
+       GROUP BY PLAYERNO
+       HAVING SUM(AMOUNT) =
+              (SELECT MAX(TOT_AMOUNT)
+               FROM (SELECT SUM(AMOUNT) AS TOT_AMOUNT
+                     FROM PENALTIES
+                     GROUP BY PLAYERNO)));
 
 /* 10. in which year there were the most penalties and how many were there */
-
-/* 11. For each occurnce of a players in teams, show the PLAYERNO, TEAMNO, "WON - LOST" (nicely formatted, for example "3 - 2") sorted by the sum of lost Matches of this player in this team. */
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT EXTRACT(YEAR FROM PEN_DATE) AS PENALTY_YEAR, COUNT(*) AS NUMBER_OF_PENS
+FROM PENALTIES
+GROUP BY EXTRACT(YEAR FROM PEN_DATE)
+HAVING COUNT(*) = (
+    SELECT MAX(PenaltyCount)
+    FROM (
+        SELECT EXTRACT(YEAR FROM PEN_DATE) AS Year, COUNT(*) AS PenaltyCount
+        FROM PENALTIES
+        GROUP BY EXTRACT(YEAR FROM PEN_DATE)
+    )
+)
+ORDER BY PENALTY_YEAR;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* 11. For each occurnce of a players in teams, show the PLAYERNO, TEAMNO, "WON - LOST" (nicely formatted, for example "3 - 2") sorted by the sum of lost Matches of this player in this team.   */
+SELECT PLAYERNO, TEAMNO, CONCAT(CONCAT(WON,'-'),LOST) AS WON_LOST
+FROM MATCHES
+GROUP BY PLAYERNO, TEAMNO, CONCAT(CONCAT(WON,'-'),LOST)
+ORDER BY SUM(LOST);
