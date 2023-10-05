@@ -105,7 +105,7 @@ FROM EMP;
 /* 18. searched is the number of employees who have received a commission. */
 SELECT EMPNO, ENAME
 FROM EMP
-WHERE SAL IS NOT NULL ;
+WHERE SAL IS NOT NULL;
 
 
 /* 19. wanted is the number of different jobs in department 30. */
@@ -172,12 +172,11 @@ ORDER BY YEAR_JOINED;
 
 /* 2. number and average amount of penalties per player */
 SELECT PLAYERNO,
-       COUNT(*) AS NUMBER_OF_PENALTIES,
+       COUNT(*)           AS NUMBER_OF_PENALTIES,
        ROUND(AVG(AMOUNT)) AS AVERAGE_AMOUNT
 FROM PENALTIES
 GROUP BY PLAYERNO
 ORDER BY PLAYERNO;
-
 
 /* 3. number of penalties for the years before 1983 */
 SELECT EXTRACT(YEAR FROM PEN_DATE) AS PENALTY_YEAR, COUNT(*) AS NUMBER_OF_PENS
@@ -186,25 +185,22 @@ WHERE EXTRACT(YEAR FROM PEN_DATE) < 1983
 GROUP BY EXTRACT(YEAR FROM PEN_DATE)
 ORDER BY PENALTY_YEAR;
 
-
 /* 4. in which cities live more than 4 players */
 SELECT TOWN
 FROM PLAYERS
-GROUP BY TOWN HAVING COUNT(*) > 4;
-
+GROUP BY TOWN
+HAVING COUNT(*) > 4;
 
 /* 5. PLAYERNO of those players whose penalty total is over 150 */
 SELECT PLAYERNO
 FROM PENALTIES
 WHERE AMOUNT > 150;
 
-
 /* 6. NAME and INITIALS of those players who received more than one penalty */
 SELECT NAME, INITIALS
 FROM PLAYERS
 WHERE PLAYERNO IN
       (SELECT PLAYERNO FROM PENALTIES GROUP BY PLAYERNO HAVING COUNT(*) > 1);
-
 
 /* 7. in which years there were exactly 2 penalties */
 SELECT EXTRACT(YEAR FROM PEN_DATE) AS PENALTY_YEAR, COUNT(*) AS NUMBER_OF_PENS
@@ -213,13 +209,11 @@ GROUP BY EXTRACT(YEAR FROM PEN_DATE)
 HAVING COUNT(*) = 2
 ORDER BY PENALTY_YEAR;
 
-
 /* 8. NAME and INITIALS of the players who received 2 or more penalties over $40 */
 SELECT NAME, INITIALS
 FROM PLAYERS
 WHERE PLAYERNO IN
       (SELECT PLAYERNO FROM PENALTIES GROUP BY PLAYERNO HAVING COUNT(*) > 2 AND SUM(PENALTIES.AMOUNT) > 40);
-
 
 /* 9. NAME and INITIALS of the player with the highest penalty amount */
 
@@ -239,20 +233,64 @@ WHERE PLAYERNO IN
 SELECT EXTRACT(YEAR FROM PEN_DATE) AS PENALTY_YEAR, COUNT(*) AS NUMBER_OF_PENS
 FROM PENALTIES
 GROUP BY EXTRACT(YEAR FROM PEN_DATE)
-HAVING COUNT(*) = (
-    SELECT MAX(PenaltyCount)
-    FROM (
-        SELECT EXTRACT(YEAR FROM PEN_DATE) AS Year, COUNT(*) AS PenaltyCount
-        FROM PENALTIES
-        GROUP BY EXTRACT(YEAR FROM PEN_DATE)
-    )
-)
+HAVING COUNT(*) = (SELECT MAX(PenaltyCount)
+                   FROM (SELECT EXTRACT(YEAR FROM PEN_DATE) AS Year, COUNT(*) AS PenaltyCount
+                         FROM PENALTIES
+                         GROUP BY EXTRACT(YEAR FROM PEN_DATE)))
 ORDER BY PENALTY_YEAR;
 
-
-
 /* 11. For each occurnce of a players in teams, show the PLAYERNO, TEAMNO, "WON - LOST" (nicely formatted, for example "3 - 2") sorted by the sum of lost Matches of this player in this team.   */
-SELECT PLAYERNO, TEAMNO, CONCAT(CONCAT(WON,'-'),LOST) AS WON_LOST
+SELECT PLAYERNO, TEAMNO, CONCAT(CONCAT(WON, '-'), LOST) AS WON_LOST
 FROM MATCHES
-GROUP BY PLAYERNO, TEAMNO, CONCAT(CONCAT(WON,'-'),LOST)
+GROUP BY PLAYERNO, TEAMNO, CONCAT(CONCAT(WON, '-'), LOST)
 ORDER BY SUM(LOST);
+
+
+
+/*   EMP Section   */
+/* 12. output of all employees from department 30 sorted by their salary starting with the highest salary.*/
+SELECT EMPNO, ENAME, SAL
+FROM EMP
+WHERE DEPTNO = 30
+ORDER BY SAL DESC;
+
+/* 13. output of all employees sorted by job and within the job by their salary*/
+SELECT JOB, ENAME, SAL
+FROM EMP
+ORDER BY JOB, SAL DESC;
+
+/* 14. output of all employees sorted by their year of employment in descending order and within the year by their name*/
+SELECT ENAME, HIREDATE
+FROM EMP
+ORDER BY ENAME, HIREDATE DESC;
+
+/* 15. output of all salesmen in descending order regarding the ratio commission to salary*/
+SELECT JOB, ENAME, SAL
+FROM EMP
+WHERE JOB = 'SALESMAN'
+ORDER BY (COMM / SAL) DESC;
+
+/* 16. output the average salary for each department number*/
+SELECT DEPTNO, ROUND(AVG(SAL)) AS AVERAGE_SAL
+FROM EMP
+GROUP BY DEPTNO
+ORDER BY DEPTNO;
+
+/* 17. calculate the average annual salaries of those jobs that are performed by more than 2 employees */
+SELECT JOB, ROUND(AVG(SAL)) AS AVERAGE_SAL
+FROM EMP
+GROUP BY JOB
+HAVING COUNT(*) > 2;
+
+/* 18. output all department numbers with at least 2 office workers*/
+SELECT JOB, DEPTNO
+FROM EMP
+GROUP BY DEPTNO, JOB
+HAVING COUNT(*) >= 2;
+
+/* 19. find the average value for salary and commission of all employees from department 30*/
+SELECT ROUND(AVG(SAL))  AS AVG_SALARY,
+       ROUND(AVG(COMM)) AS AVG_COMMISSION
+FROM EMP
+WHERE DEPTNO = 30;
+
