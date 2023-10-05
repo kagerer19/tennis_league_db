@@ -350,6 +350,10 @@ WHERE EMP.DEPTNO = DEPT.DEPTNO
 
 
 /* 7. search for all employees who earn more than their supervisor */
+SELECT  E.EMPNO, E.ENAME
+FROM EMP E
+WHERE E.SAL > (SELECT E2.SAL FROM EMP E2 WHERE E2.EMPNO = E.MGR);
+
 
 /* 8. output the number of hires in each year */
 SELECT EXTRACT(YEAR FROM HIREDATE) AS HIRE_YEAR, COUNT(*) AS NUMBER_OF_HIRES
@@ -366,5 +370,3 @@ WHERE JOB IN (SELECT DISTINCT JOB
               WHERE DEPTNO IN (SELECT DEPTNO
                                FROM DEPT
                                WHERE LOC = 'CHICAGO'));
-
-
