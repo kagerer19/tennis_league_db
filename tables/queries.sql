@@ -350,7 +350,7 @@ WHERE EMP.DEPTNO = DEPT.DEPTNO
 
 
 /* 7. search for all employees who earn more than their supervisor */
-SELECT  E.EMPNO, E.ENAME
+SELECT E.EMPNO, E.ENAME
 FROM EMP E
 WHERE E.SAL > (SELECT E2.SAL FROM EMP E2 WHERE E2.EMPNO = E.MGR);
 
@@ -370,3 +370,59 @@ WHERE JOB IN (SELECT DISTINCT JOB
               WHERE DEPTNO IN (SELECT DEPTNO
                                FROM DEPT
                                WHERE LOC = 'CHICAGO'));
+
+
+
+/*  SQL Exercise 7     */
+
+/*  1-4 Tennis query    */
+
+/*  1. output of players names who played for both team 1 and team 2.   */
+SELECT P.NAME
+FROM PLAYERS P
+WHERE EXISTS (SELECT 1 FROM MATCHES M WHERE M.PLAYERNO = P.PLAYERNO AND M.TEAMNO = 1)
+  AND EXISTS (SELECT 1 FROM MATCHES M WHERE M.PLAYERNO = P.PLAYERNO AND M.TEAMNO = 2);
+
+
+/*  2. output the NAME and INITIALS of the players who did not receive a penalty in 1980    */
+SELECT NAME, INITIALS
+FROM PLAYERS P
+WHERE NOT EXISTS (SELECT 1
+                  FROM PENALTIES PEN
+                  WHERE PEN.PLAYERNO = P.PLAYERNO
+                    AND EXTRACT(YEAR FROM PEN.PEN_DATE) = 1980)
+ORDER BY NAME;
+
+
+/*  3. output of players who received at least one penalty over $80    */
+SELECT NAME
+FROM PLAYERS P
+WHERE EXISTS(SELECT 1
+             FROM PENALTIES PEN
+             WHERE PEN.PLAYERNO = P.PLAYERNO
+               AND PEN.AMOUNT > 80)
+ORDER BY NAME;
+
+
+/*  4. output of players who had all penalties over $80.    */
+SELECT NAME
+FROM PLAYERS P
+WHERE NOT EXISTS (SELECT 1
+                  FROM PENALTIES PEN
+                  WHERE PEN.PLAYERNO = P.PLAYERNO
+                    AND PEN.AMOUNT <= 80)
+  AND EXISTS (SELECT 1
+              FROM PENALTIES PEN
+              WHERE PEN.PLAYERNO = P.PLAYERNO)
+ORDER BY NAME;
+
+
+/*  5-8 EmpDept query    */
+
+/*  5. find all employees whose salary is higher than the average salary of their department    */
+
+/*  6. identify all departments that have at least one employee    */
+
+/*  7. output of all departments that have at least one employee earning over $1000    */
+
+/* 8. output of all departments in which each employee earns at least 1000,-. */
