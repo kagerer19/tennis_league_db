@@ -420,9 +420,38 @@ ORDER BY NAME;
 /*  5-8 EmpDept query    */
 
 /*  5. find all employees whose salary is higher than the average salary of their department    */
+SELECT ENAME, SAL
+FROM EMP E
+WHERE SAL > (SELECT AVG(SAL)
+             FROM EMP
+             WHERE DEPTNO = E.DEPTNO)
+ORDER BY ENAME;
 
-/*  6. identify all departments that have at least one employee    */
+
+/*  6. identify all departments that have at least one employee  */
+SELECT D.DEPTNO
+FROM DEPT D
+WHERE EXISTS (SELECT 1
+              FROM EMP E
+              WHERE E.DEPTNO = D.DEPTNO)
+ORDER BY D.DEPTNO;
+
 
 /*  7. output of all departments that have at least one employee earning over $1000    */
+SELECT D.DEPTNO
+FROM DEPT D
+WHERE EXISTS (SELECT 1
+              FROM EMP E
+              WHERE E.DEPTNO = D.DEPTNO
+                AND E.SAL > 1000)
+ORDER BY D.DEPTNO;
+
 
 /* 8. output of all departments in which each employee earns at least 1000,-. */
+SELECT D.DEPTNO
+FROM DEPT D
+WHERE NOT EXISTS (SELECT 1
+                  FROM EMP E
+                  WHERE E.DEPTNO = D.DEPTNO
+                    AND E.SAL <= 1000)
+ORDER BY D.DEPTNO;
