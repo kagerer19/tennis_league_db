@@ -759,5 +759,38 @@ SELECT D.DEPTNO, D.DNAME
 FROM DEPT D
 LEFT JOIN EMP E
 ON D.DEPTNO = E.DEPTNO AND E.SAL < 1000
-WHERE E.EMPNO IS NULL AND D.DEPTNO IN(SELECT D.DEPTNO FROM EMP)
+WHERE E.EMPNO IS NULL AND D.DEPTNO IN(SELECT D.DEPTNO FROM EMP);
+
+
+
+
+                                              /* COMPETENCE CHECK */
+                                                    /*INSERTS*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
