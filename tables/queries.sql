@@ -455,3 +455,309 @@ WHERE NOT EXISTS (SELECT 1
                   WHERE E.DEPTNO = D.DEPTNO
                     AND E.SAL <= 1000)
 ORDER BY D.DEPTNO;
+
+
+/* SQL Exercise 8 */
+SELECT *
+FROM PARTS;
+/* 1. creating the PARTS table([Parts insert and create tables]) */
+insert into parts values ('P1',NULL,130)
+/
+insert into parts values ('P2','P1',15)
+/
+insert into parts values ('P3','P1',65)
+/
+insert into parts values ('P4','P1',20)
+/
+insert into parts values ('P9','P1',45)
+/
+insert into parts values ('P5','P2',10)
+/
+insert into parts values ('P6','P3',10)
+/
+insert into parts values ('P7','P3',20)
+/
+insert into parts values ('P8','P3',25)
+/
+insert into parts values ('P12','P7',10)
+/
+insert into parts values ('P10','P9',12)
+/
+insert into parts values ('P11','P9',21)
+/
+/* 2. display the whole hierarchy of those parts that make up P3 and P9 */
+SELECT SUB, SUPER
+FROM PARTS
+START WITH SUPER = 'P3' CONNECT BY SUPER = SUB
+UNION
+SELECT SUB, SUPER
+FROM PARTS
+START WITH SUPER = 'P9' CONNECT BY SUPER = SUB;
+
+
+/* 3. at which hierarchy level is P12 used in P1 */
+SELECT SUB, SUPER
+FROM PARTS
+CONNECT BY PRIOR SUPER = SUB
+START WITH SUB = 'P12';
+
+SELECT SUB, MAX(LEVEL-1) AS LEVELS
+FROM PARTS
+CONNECT BY SUPER = SUB
+START WITH SUB = 'P12'
+GROUP BY SUB;
+
+
+/* 4. how many parts to P1 cost more than $20 */
+SELECT COUNT(SUB) AS AMOUNT
+FROM PARTS
+WHERE PRICE > 20
+CONNECT BY SUPER = SUB
+START WITH SUPER = 'P1';
+
+
+/* 5. output of all direct and indirect employees belonging to JONES (without JONES itself, with corresponding indentation per hierarchy) */
+SELECT ENAME
+FROM EMP
+START WITH ENAME = 'JONES'
+CONNECT BY MGR = PRIOR EMPNO
+MINUS SELECT 'JONES'
+FROM EMP;
+
+
+/* 6. output of all direct and indirect superiors of SMITH (including SMITH itself) */
+SELECT ENAME
+FROM EMP
+START WITH ENAME = 'SMITH'
+CONNECT BY PRIOR MGR = EMPNO;
+
+
+/* 7. output of the average salary for each hierarchy level */
+SELECT ROUND(AVG(SAL)), MAX(LEVEL-1)
+FROM EMP
+START WITH MGR IS NULL
+CONNECT BY PRIOR EMPNO = MGR
+GROUP BY LEVEL;
+
+
+
+/* SQL Exercise 6 using Joins  */
+
+/* 1-5 Tennis query */
+
+/* 1. NAME, INITIALS and number of sets won for each player
+   SELECT NAME,
+       INITIALS,
+       (SELECT SUM(WON)
+        FROM MATCHES
+        WHERE PLAYERS.PLAYERNO = MATCHES.PLAYERNO) AS SETS_WON
+FROM PLAYERS
+ORDER BY NAME, INITIALS;
+   */
+
+SELECT P.PLAYERNO, P.NAME, P.INITIALS, SUM(M.WON) AS WON
+FROM PLAYERS P
+INNER JOIN MATCHES M ON P.PLAYERNO = M.PLAYERNO
+GROUP BY P.PLAYERNO, P.NAME, P.INITIALS;
+
+
+/* 2. NAME, PEN_DATE and AMOUNT sorted in descending order by AMOUNT
+   SELECT NAME, PEN_DATE, AMOUNT
+FROM PLAYERS,
+     PENALTIES
+WHERE PLAYERS.PLAYERNO = PENALTIES.PLAYERNO
+ORDER BY AMOUNT DESC;
+   */
+SELECT P.NAME, pen.PEN_DATE, pen.AMOUNT
+FROM PLAYERS P
+INNER JOIN PENALTIES PEN ON P.PLAYERNO = PEN.PLAYERNO
+ORDER BY PEN.AMOUNT DESC;
+
+
+
+
+
+
+
+/* 3. TEAMNO, NAME (of the captain) per team
+   SELECT TEAMNO, NAME
+FROM PLAYERS,
+     TEAMS
+WHERE PLAYERS.PLAYERNO = TEAMS.PLAYERNO;
+
+   */
+SELECT T.TEAMNO, P.NAME
+FROM PLAYERS P
+INNER JOIN TEAMS T
+ON P.PLAYERNO = T.PLAYERNO;
+
+
+
+/* 4. NAME (player name), WON, LOST of all won matches
+   SELECT NAME, WON, LOST
+FROM PLAYERS,
+     MATCHES
+WHERE PLAYERS.PLAYERNO = MATCHES.PLAYERNO
+  AND MATCHES.WON > 0;
+
+   */
+SELECT P.NAME, M.WON, M.LOST
+FROM PLAYERS P
+INNER JOIN MATCHES M
+ON P.PLAYERNO = M.PLAYERNO AND M.WON > 0;
+
+
+
+
+/* 5. PLAYERNO, NAME and penalty amount for each team player. If a player has not yet received a penalty, it should still be issued. Sorting should be done in ascending order of penalty amount
+   SELECT NAME, AMOUNT, PLAYERS.PLAYERNO
+FROM PLAYERS,
+     PENALTIES
+WHERE PLAYERS.PLAYERNO = PENALTIES.PLAYERNO
+ORDER BY PLAYERNO DESC;
+
+   */
+
+SELECT P.PLAYERNO, P.NAME, NVL(SUM(PEN.AMOUNT), 0) AS PENALTY
+FROM PLAYERS P
+INNER JOIN PENALTIES PEN
+ON P.PLAYERNO = PEN.PLAYERNO
+GROUP BY P.PLAYERNO, P.NAME
+ORDER BY PENALTY;
+
+
+
+
+
+
+
+/* 6-9 EmptDept query */
+/* 6. in which city does the employee Allen work?
+   SELECT DEPT.LOC
+FROM EMP,
+     DEPT
+WHERE EMP.DEPTNO = DEPT.DEPTNO
+  AND EMP.ENAME = 'ALLEN';
+
+   */
+
+SELECT D.LOC, E.DEPTNO
+FROM EMP E
+INNER JOIN DEPT D
+ON D.DEPTNO = E.DEPTNO AND E.ENAME = 'ALLEN';
+
+
+
+
+
+/* 7. search for all employees who earn more than their supervisor
+   SELECT E.EMPNO, E.ENAME
+FROM EMP E
+WHERE E.SAL > (SELECT E2.SAL FROM EMP E2 WHERE E2.EMPNO = E.MGR);
+
+   */
+
+SELECT  E.EMPNO, E.ENAME
+FROM EMP E
+INNER JOIN EMP E2
+ON E2.EMPNO = E.MGR AND E.SAL > E2.SAL;
+
+/* 8. output the number of hires in each year
+   SELECT EXTRACT(YEAR FROM HIREDATE) AS HIRE_YEAR, COUNT(*) AS NUMBER_OF_HIRES
+FROM EMP
+GROUP BY EXTRACT(YEAR FROM HIREDATE)
+ORDER BY HIRE_YEAR;
+
+   */
+SELECT EXTRACT(YEAR  FROM E.HIREDATE) AS DATE_OF_HIRE, COUNT(EXTRACT(YEAR FROM E.HIREDATE)) AS "NUMBER OF HIRES"
+FROM EMP E
+INNER JOIN EMP E2
+ON E.EMPNO = E2.EMPNO
+GROUP BY EXTRACT(YEAR  FROM E.HIREDATE);
+
+
+/* 9. output all employees who have a job like an employee from CHICAGO.
+   SELECT ENAME, JOB
+FROM EMP
+WHERE JOB IN (SELECT DISTINCT JOB
+              FROM EMP
+              WHERE DEPTNO IN (SELECT DEPTNO
+                               FROM DEPT
+                               WHERE LOC = 'CHICAGO'));
+   */
+SELECT  E.EMPNO, E.ENAME
+FROM EMP E
+INNER JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO AND D.LOC = 'CHICAGO' AND E.JOB IN ('CLERK', 'ANALYST');
+
+
+
+/* 1-4 Tennis query */
+/* 1. output of players' names who played for both team 1 and team 2. */
+SELECT P.NAME
+FROM PLAYERS P
+INNER JOIN  MATCHES M1
+ON P.PLAYERNO = M1.PLAYERNO AND M1.TEAMNO = 1
+INNER JOIN MATCHES M2
+ON P.PLAYERNO = M2.PLAYERNO AND M2.TEAMNO = 2;
+
+/* 2. output the NAME and INITIALS of the players who did not receive a penalty in 1980 */
+SELECT P.NAME, P.INITIALS
+FROM PLAYERS P
+LEFT JOIN PENALTIES PEN
+ON P.PLAYERNO = PEN.PLAYERNO AND EXTRACT(YEAR FROM PEN_DATE) <> 1980
+WHERE PEN.PLAYERNO IS NULL;
+
+
+/* 3. output of players who received at least one penalty over $80 */
+SELECT DISTINCT P.NAME, P.INITIALS, PEN.AMOUNT
+FROM PLAYERS P
+INNER JOIN PENALTIES PEN
+ON P.PLAYERNO = PEN.PLAYERNO AND PEN.AMOUNT > 80;
+
+/* 4. output of players who had all penalties over $80 */
+SELECT P.PLAYERNO
+FROM PENALTIES P
+LEFT JOIN PENALTIES PP
+ON P.PLAYERNO = PP.PLAYERNO AND PP.AMOUNT <= 80
+WHERE PP.PLAYERNO IS NULL;
+
+
+
+/* 5-8 EmpDept query */
+
+/* 5. find all employees whose salary is higher than the average salary of their department */
+SELECT E.ENAME, E.DEPTNO, E.SAL
+FROM EMP E
+INNER JOIN EMP EE
+ON E.DEPTNO = EE.DEPTNO
+HAVING E.SAL > AVG(EE.SAL)
+GROUP BY E.ENAME, E.DEPTNO, E.SAL;
+
+
+
+/* 6. identify all departments that have at least one employee */
+SELECT D.DEPTNO
+FROM EMP E
+INNER JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO
+GROUP BY D.DEPTNO;
+
+
+/* 7. output of all departments that have at least one employee earning over $1000 */
+SELECT E.DEPTNO, COUNT(E.EMPNO), E.SAL
+FROM EMP E
+INNER JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO
+GROUP BY E.DEPTNO, E.SAL
+HAVING COUNT(E.EMPNO) >= 1 AND SAL >= 1000;
+
+
+
+/* 8. output of all departments in which each employee earns at least 1000,-. */
+SELECT D.DEPTNO, D.DNAME
+FROM DEPT D
+LEFT JOIN EMP E
+ON D.DEPTNO = E.DEPTNO AND E.SAL < 1000
+WHERE E.EMPNO IS NULL AND D.DEPTNO IN(SELECT D.DEPTNO FROM EMP)
+
