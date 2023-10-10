@@ -162,6 +162,34 @@ SELECT PLAYERNO, NAME
 FROM PLAYERS
 WHERE YEAR_OF_BIRTH IN (SELECT min(YEAR_OF_BIRTH) FROM PLAYERS WHERE TOWN = 'Stratford');
 
+
+/*7. */
+SELECT DNAME
+FROM DEPT
+WHERE DEPTNO NOT IN (SELECT DEPTNO FROM EMP);
+/*8. */
+SELECT EMPNO, ENAME
+FROM EMP
+WHERE JOB = (SELECT JOB FROM EMP WHERE ENAME = 'JONES');
+/*9. */
+SELECT EMPNO, ENAME
+FROM EMP
+WHERE SAL > (SELECT AVG(SAL) FROM EMP WHERE DEPTNO = 30);
+/*10.*/
+SELECT EMPNO, ENAME
+FROM EMP
+WHERE SAL > ANY (SELECT SAL FROM EMP WHERE DEPTNO = 30);
+/*11.*/
+SELECT EMPNO, ENAME
+FROM EMP
+WHERE DEPTNO = 10
+  AND JOB NOT IN (SELECT JOB FROM EMP WHERE DEPTNO = '30');
+/*12.*/
+SELECT EMPNO, ENAME, JOB, SAL
+FROM EMP
+WHERE SAL = (SELECT MAX(SAL) FROM EMP);
+
+
 /*   SQL Exercise 5   */
 
 /* 1. number of new players per year */
@@ -244,8 +272,6 @@ SELECT PLAYERNO, TEAMNO, CONCAT(CONCAT(WON, '-'), LOST) AS WON_LOST
 FROM MATCHES
 GROUP BY PLAYERNO, TEAMNO, CONCAT(CONCAT(WON, '-'), LOST)
 ORDER BY SUM(LOST);
-
-
 
 /*   EMP Section   */
 /* 12. output of all employees from department 30 sorted by their salary starting with the highest salary.*/
@@ -461,38 +487,52 @@ ORDER BY D.DEPTNO;
 SELECT *
 FROM PARTS;
 /* 1. creating the PARTS table([Parts insert and create tables]) */
-insert into parts values ('P1',NULL,130)
+insert into parts
+values ('P1', NULL, 130)
 /
-insert into parts values ('P2','P1',15)
+insert into parts
+values ('P2', 'P1', 15)
 /
-insert into parts values ('P3','P1',65)
+insert into parts
+values ('P3', 'P1', 65)
 /
-insert into parts values ('P4','P1',20)
+insert into parts
+values ('P4', 'P1', 20)
 /
-insert into parts values ('P9','P1',45)
+insert into parts
+values ('P9', 'P1', 45)
 /
-insert into parts values ('P5','P2',10)
+insert into parts
+values ('P5', 'P2', 10)
 /
-insert into parts values ('P6','P3',10)
+insert into parts
+values ('P6', 'P3', 10)
 /
-insert into parts values ('P7','P3',20)
+insert into parts
+values ('P7', 'P3', 20)
 /
-insert into parts values ('P8','P3',25)
+insert into parts
+values ('P8', 'P3', 25)
 /
-insert into parts values ('P12','P7',10)
+insert into parts
+values ('P12', 'P7', 10)
 /
-insert into parts values ('P10','P9',12)
+insert into parts
+values ('P10', 'P9', 12)
 /
-insert into parts values ('P11','P9',21)
+insert into parts
+values ('P11', 'P9', 21)
 /
 /* 2. display the whole hierarchy of those parts that make up P3 and P9 */
 SELECT SUB, SUPER
 FROM PARTS
-START WITH SUPER = 'P3' CONNECT BY SUPER = SUB
+START WITH SUPER = 'P3'
+CONNECT BY SUPER = SUB
 UNION
 SELECT SUB, SUPER
 FROM PARTS
-START WITH SUPER = 'P9' CONNECT BY SUPER = SUB;
+START WITH SUPER = 'P9'
+CONNECT BY SUPER = SUB;
 
 
 /* 3. at which hierarchy level is P12 used in P1 */
@@ -501,7 +541,7 @@ FROM PARTS
 CONNECT BY PRIOR SUPER = SUB
 START WITH SUB = 'P12';
 
-SELECT SUB, MAX(LEVEL-1) AS LEVELS
+SELECT SUB, MAX(LEVEL - 1) AS LEVELS
 FROM PARTS
 CONNECT BY SUPER = SUB
 START WITH SUB = 'P12'
@@ -521,7 +561,8 @@ SELECT ENAME
 FROM EMP
 START WITH ENAME = 'JONES'
 CONNECT BY MGR = PRIOR EMPNO
-MINUS SELECT 'JONES'
+MINUS
+SELECT 'JONES'
 FROM EMP;
 
 
@@ -533,7 +574,7 @@ CONNECT BY PRIOR MGR = EMPNO;
 
 
 /* 7. output of the average salary for each hierarchy level */
-SELECT ROUND(AVG(SAL)), MAX(LEVEL-1)
+SELECT ROUND(AVG(SAL)), MAX(LEVEL - 1)
 FROM EMP
 START WITH MGR IS NULL
 CONNECT BY PRIOR EMPNO = MGR
@@ -557,7 +598,7 @@ ORDER BY NAME, INITIALS;
 
 SELECT P.PLAYERNO, P.NAME, P.INITIALS, SUM(M.WON) AS WON
 FROM PLAYERS P
-INNER JOIN MATCHES M ON P.PLAYERNO = M.PLAYERNO
+         INNER JOIN MATCHES M ON P.PLAYERNO = M.PLAYERNO
 GROUP BY P.PLAYERNO, P.NAME, P.INITIALS;
 
 
@@ -570,13 +611,8 @@ ORDER BY AMOUNT DESC;
    */
 SELECT P.NAME, pen.PEN_DATE, pen.AMOUNT
 FROM PLAYERS P
-INNER JOIN PENALTIES PEN ON P.PLAYERNO = PEN.PLAYERNO
+         INNER JOIN PENALTIES PEN ON P.PLAYERNO = PEN.PLAYERNO
 ORDER BY PEN.AMOUNT DESC;
-
-
-
-
-
 
 
 /* 3. TEAMNO, NAME (of the captain) per team
@@ -588,9 +624,8 @@ WHERE PLAYERS.PLAYERNO = TEAMS.PLAYERNO;
    */
 SELECT T.TEAMNO, P.NAME
 FROM PLAYERS P
-INNER JOIN TEAMS T
-ON P.PLAYERNO = T.PLAYERNO;
-
+         INNER JOIN TEAMS T
+                    ON P.PLAYERNO = T.PLAYERNO;
 
 
 /* 4. NAME (player name), WON, LOST of all won matches
@@ -603,10 +638,8 @@ WHERE PLAYERS.PLAYERNO = MATCHES.PLAYERNO
    */
 SELECT P.NAME, M.WON, M.LOST
 FROM PLAYERS P
-INNER JOIN MATCHES M
-ON P.PLAYERNO = M.PLAYERNO AND M.WON > 0;
-
-
+         INNER JOIN MATCHES M
+                    ON P.PLAYERNO = M.PLAYERNO AND M.WON > 0;
 
 
 /* 5. PLAYERNO, NAME and penalty amount for each team player. If a player has not yet received a penalty, it should still be issued. Sorting should be done in ascending order of penalty amount
@@ -620,14 +653,10 @@ ORDER BY PLAYERNO DESC;
 
 SELECT P.PLAYERNO, P.NAME, NVL(SUM(PEN.AMOUNT), 0) AS PENALTY
 FROM PLAYERS P
-INNER JOIN PENALTIES PEN
-ON P.PLAYERNO = PEN.PLAYERNO
+         INNER JOIN PENALTIES PEN
+                    ON P.PLAYERNO = PEN.PLAYERNO
 GROUP BY P.PLAYERNO, P.NAME
 ORDER BY PENALTY;
-
-
-
-
 
 
 
@@ -643,11 +672,8 @@ WHERE EMP.DEPTNO = DEPT.DEPTNO
 
 SELECT D.LOC, E.DEPTNO
 FROM EMP E
-INNER JOIN DEPT D
-ON D.DEPTNO = E.DEPTNO AND E.ENAME = 'ALLEN';
-
-
-
+         INNER JOIN DEPT D
+                    ON D.DEPTNO = E.DEPTNO AND E.ENAME = 'ALLEN';
 
 
 /* 7. search for all employees who earn more than their supervisor
@@ -657,10 +683,10 @@ WHERE E.SAL > (SELECT E2.SAL FROM EMP E2 WHERE E2.EMPNO = E.MGR);
 
    */
 
-SELECT  E.EMPNO, E.ENAME
+SELECT E.EMPNO, E.ENAME
 FROM EMP E
-INNER JOIN EMP E2
-ON E2.EMPNO = E.MGR AND E.SAL > E2.SAL;
+         INNER JOIN EMP E2
+                    ON E2.EMPNO = E.MGR AND E.SAL > E2.SAL;
 
 /* 8. output the number of hires in each year
    SELECT EXTRACT(YEAR FROM HIREDATE) AS HIRE_YEAR, COUNT(*) AS NUMBER_OF_HIRES
@@ -669,11 +695,11 @@ GROUP BY EXTRACT(YEAR FROM HIREDATE)
 ORDER BY HIRE_YEAR;
 
    */
-SELECT EXTRACT(YEAR  FROM E.HIREDATE) AS DATE_OF_HIRE, COUNT(EXTRACT(YEAR FROM E.HIREDATE)) AS "NUMBER OF HIRES"
+SELECT EXTRACT(YEAR FROM E.HIREDATE) AS DATE_OF_HIRE, COUNT(EXTRACT(YEAR FROM E.HIREDATE)) AS "NUMBER OF HIRES"
 FROM EMP E
-INNER JOIN EMP E2
-ON E.EMPNO = E2.EMPNO
-GROUP BY EXTRACT(YEAR  FROM E.HIREDATE);
+         INNER JOIN EMP E2
+                    ON E.EMPNO = E2.EMPNO
+GROUP BY EXTRACT(YEAR FROM E.HIREDATE);
 
 
 /* 9. output all employees who have a job like an employee from CHICAGO.
@@ -685,10 +711,10 @@ WHERE JOB IN (SELECT DISTINCT JOB
                                FROM DEPT
                                WHERE LOC = 'CHICAGO'));
    */
-SELECT  E.EMPNO, E.ENAME
+SELECT E.EMPNO, E.ENAME
 FROM EMP E
-INNER JOIN DEPT D
-ON E.DEPTNO = D.DEPTNO AND D.LOC = 'CHICAGO' AND E.JOB IN ('CLERK', 'ANALYST');
+         INNER JOIN DEPT D
+                    ON E.DEPTNO = D.DEPTNO AND D.LOC = 'CHICAGO' AND E.JOB IN ('CLERK', 'ANALYST');
 
 
 
@@ -696,30 +722,30 @@ ON E.DEPTNO = D.DEPTNO AND D.LOC = 'CHICAGO' AND E.JOB IN ('CLERK', 'ANALYST');
 /* 1. output of players' names who played for both team 1 and team 2. */
 SELECT P.NAME
 FROM PLAYERS P
-INNER JOIN  MATCHES M1
-ON P.PLAYERNO = M1.PLAYERNO AND M1.TEAMNO = 1
-INNER JOIN MATCHES M2
-ON P.PLAYERNO = M2.PLAYERNO AND M2.TEAMNO = 2;
+         INNER JOIN MATCHES M1
+                    ON P.PLAYERNO = M1.PLAYERNO AND M1.TEAMNO = 1
+         INNER JOIN MATCHES M2
+                    ON P.PLAYERNO = M2.PLAYERNO AND M2.TEAMNO = 2;
 
 /* 2. output the NAME and INITIALS of the players who did not receive a penalty in 1980 */
 SELECT P.NAME, P.INITIALS
 FROM PLAYERS P
-LEFT JOIN PENALTIES PEN
-ON P.PLAYERNO = PEN.PLAYERNO AND EXTRACT(YEAR FROM PEN_DATE) <> 1980
+         LEFT JOIN PENALTIES PEN
+                   ON P.PLAYERNO = PEN.PLAYERNO AND EXTRACT(YEAR FROM PEN_DATE) <> 1980
 WHERE PEN.PLAYERNO IS NULL;
 
 
 /* 3. output of players who received at least one penalty over $80 */
 SELECT DISTINCT P.NAME, P.INITIALS, PEN.AMOUNT
 FROM PLAYERS P
-INNER JOIN PENALTIES PEN
-ON P.PLAYERNO = PEN.PLAYERNO AND PEN.AMOUNT > 80;
+         INNER JOIN PENALTIES PEN
+                    ON P.PLAYERNO = PEN.PLAYERNO AND PEN.AMOUNT > 80;
 
 /* 4. output of players who had all penalties over $80 */
 SELECT P.PLAYERNO
 FROM PENALTIES P
-LEFT JOIN PENALTIES PP
-ON P.PLAYERNO = PP.PLAYERNO AND PP.AMOUNT <= 80
+         LEFT JOIN PENALTIES PP
+                   ON P.PLAYERNO = PP.PLAYERNO AND PP.AMOUNT <= 80
 WHERE PP.PLAYERNO IS NULL;
 
 
@@ -729,43 +755,42 @@ WHERE PP.PLAYERNO IS NULL;
 /* 5. find all employees whose salary is higher than the average salary of their department */
 SELECT E.ENAME, E.DEPTNO, E.SAL
 FROM EMP E
-INNER JOIN EMP EE
-ON E.DEPTNO = EE.DEPTNO
+         INNER JOIN EMP EE
+                    ON E.DEPTNO = EE.DEPTNO
 HAVING E.SAL > AVG(EE.SAL)
 GROUP BY E.ENAME, E.DEPTNO, E.SAL;
-
 
 
 /* 6. identify all departments that have at least one employee */
 SELECT D.DEPTNO
 FROM EMP E
-INNER JOIN DEPT D
-ON E.DEPTNO = D.DEPTNO
+         INNER JOIN DEPT D
+                    ON E.DEPTNO = D.DEPTNO
 GROUP BY D.DEPTNO;
 
 
 /* 7. output of all departments that have at least one employee earning over $1000 */
 SELECT E.DEPTNO, COUNT(E.EMPNO), E.SAL
 FROM EMP E
-INNER JOIN DEPT D
-ON E.DEPTNO = D.DEPTNO
+         INNER JOIN DEPT D
+                    ON E.DEPTNO = D.DEPTNO
 GROUP BY E.DEPTNO, E.SAL
-HAVING COUNT(E.EMPNO) >= 1 AND SAL >= 1000;
-
+HAVING COUNT(E.EMPNO) >= 1
+   AND SAL >= 1000;
 
 
 /* 8. output of all departments in which each employee earns at least 1000,-. */
 SELECT D.DEPTNO, D.DNAME
 FROM DEPT D
-LEFT JOIN EMP E
-ON D.DEPTNO = E.DEPTNO AND E.SAL < 1000
-WHERE E.EMPNO IS NULL AND D.DEPTNO IN(SELECT D.DEPTNO FROM EMP);
+         LEFT JOIN EMP E
+                   ON D.DEPTNO = E.DEPTNO AND E.SAL < 1000
+WHERE E.EMPNO IS NULL
+  AND D.DEPTNO IN (SELECT D.DEPTNO FROM EMP);
 
 
 
-
-                                              /* COMPETENCE CHECK */
-                                                    /*INSERTS*/
+/* COMPETENCE CHECK */
+/*INSERTS*/
 
 
 
