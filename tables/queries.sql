@@ -5,7 +5,7 @@ SELECT PLAYERNO
 FROM PLAYERS
 WHERE YEAR_OF_BIRTH > 1960;
 
-/* 2. output of PLAYERNO, NAME and TOWN of all female players who do not reside in Strat- ford. */
+/* 2. output of PLAYERNO, NAME and TOWN of all female players who do not reside in Stratford. */
 SELECT PLAYERNO, NAME, TOWN
 FROM PLAYERS
 WHERE SEX = 'F';
@@ -787,10 +787,6 @@ FROM DEPT D
 WHERE E.EMPNO IS NULL
   AND D.DEPTNO IN (SELECT D.DEPTNO FROM EMP);
 
-
-
-/* COMPETENCE CHECK */
-/*INSERTS*/
 
 
 
