@@ -400,7 +400,6 @@ WHERE JOB IN (SELECT DISTINCT JOB
 
 
 /*  SQL Exercise 7     */
-
 /*  1-4 Tennis query    */
 
 /*  1. output of players names who played for both team 1 and team 2.   */
@@ -815,10 +814,6 @@ WHERE AMOUNT > (SELECT AVG(AMOUNT) FROM PENALTIES);
 
 COMMIT;
 
-SELECT *
-FROM PENALTIES;
-
-
 /* 4.) the player with the number 95 gets the address of the player with the number 6 */
 SELECT *
 FROM PLAYERS;
@@ -839,33 +834,11 @@ COMMIT;
 
 /* 7.) deleting all penalties of players who have played at least once in a team of the second division */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* 8.) deleting from 7. undoing */
-
 
 /* to EMP-DEPT */
 
-
-/* 1.) delete all salaries that are lower than 80% of the average salary of the department, set to 80% of the average salary of the department */
-/* 2.) delete all employees who have been with the company for more than 35 years */
-/* 3.) create a number sequence with the values 50, 60, 70, 80, ... */
-/* 4.) insert a new record in the DEPT table with DEPTNO corresponding to the number sequence from 3., DNAME 'HTL' and LOC 'LEONDING'. */
+/* 1.)  delete all salaries that are lower than 80% of the average salary of the department, set to 80% of the average salary of the department */
+/* 2.)  delete all employees who have been with the company for more than 35 years */
+/* 3.)  create a number sequence with the values 50, 60, 70, 80, ... */
+/* 4.)  insert a new record in the DEPT table with DEPTNO corresponding to the number sequence from 3., DNAME 'HTL' and LOC 'LEONDING'. */
