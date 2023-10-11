@@ -787,6 +787,57 @@ FROM DEPT D
 WHERE E.EMPNO IS NULL
   AND D.DEPTNO IN (SELECT D.DEPTNO FROM EMP);
 
+/* SQL Exercise 10 */
+/* Solve the following tasks alone (each one of you) */
+
+/* 1.) insert a new record in the PLAYERS table (use your own data) */
+INSERT INTO players
+values (999, 'JuiceWORLD', 'RLD', 1993, 'M', 1984, 'MARS',
+        '800', '6322LK', 'MILKY WAY', '050-548745', '1319');
+COMMIT;
+
+
+/* 2.) change the value 'F' in the column SEX to 'W */
+UPDATE PLAYERS
+SET SEX = 'W'
+WHERE SEX = 'F';
+COMMIT;
+
+
+/* 3.) increase all penalties above the average by 20%. */
+
+SELECT *
+FROM PENALTIES;
+
+UPDATE PENALTIES
+SET AMOUNT = AMOUNT * 1.20
+WHERE AMOUNT > (SELECT AVG(AMOUNT) FROM PENALTIES);
+
+COMMIT;
+
+SELECT *
+FROM PENALTIES;
+
+
+/* 4.) the player with the number 95 gets the address of the player with the number 6 */
+SELECT *
+FROM PLAYERS;
+
+UPDATE PLAYERS P1
+SET (STREET, HOUSENO, POSTCODE, TOWN) = (SELECT STREET, HOUSENO, POSTCODE, TOWN
+                                         FROM PLAYERS P2
+                                         WHERE P2.PLAYERNO = 6)
+WHERE P1.PLAYERNO = 95;
+COMMIT;
+/* 5.) deleting all penalties of player 44 from 1980  */
+
+DELETE FROM PENALTIES
+WHERE PLAYERNO = 44;
+COMMIT;
+
+/* 6.) persist changes from 1.-5. */
+
+/* 7.) deleting all penalties of players who have played at least once in a team of the second division */
 
 
 
@@ -808,10 +859,13 @@ WHERE E.EMPNO IS NULL
 
 
 
+/* 8.) deleting from 7. undoing */
 
 
+/* to EMP-DEPT */
 
 
-
-
-
+/* 1.) delete all salaries that are lower than 80% of the average salary of the department, set to 80% of the average salary of the department */
+/* 2.) delete all employees who have been with the company for more than 35 years */
+/* 3.) create a number sequence with the values 50, 60, 70, 80, ... */
+/* 4.) insert a new record in the DEPT table with DEPTNO corresponding to the number sequence from 3., DNAME 'HTL' and LOC 'LEONDING'. */
