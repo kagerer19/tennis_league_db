@@ -1,6 +1,4 @@
 /* COMPETENCE CHECK */
-/*INSERTS*/
-
 /* 📚 1) The management would like a list of the different salaries per job. The output should contain the job_id as well as the sum of the salaries per job_id. In addition, the output should be sorted in descending order according to the sum of the salaries. */
 SELECT E.JOB_ID,
        ROUND(SUM(E.SAL + NVL(E.COMM_POT, 0))) AS TOTAL_SALARY
@@ -76,6 +74,7 @@ FROM DEPARTMENTS D
      EMPLOYEES M ON D.MANAGER_ID = M.EMPLOYEE_ID
 ORDER BY DEPARTMENT_NAME;
 
+
 /* 📚 SUB-SELECT */
 SELECT D.DEPARTMENT_NAME,
        L.POSTAL_CODE,
@@ -83,7 +82,7 @@ SELECT D.DEPARTMENT_NAME,
        L.STATE_PROVINCE,
        L.STREET_ADDRESS,
        C.COUNTRY_NAME,
-       M.FIRST_NAME AS Manager_first_name,
+       M.FIRST_NAME AS Manager_name,
        M.LAST_NAME  AS Manager_last_name
 FROM DEPARTMENTS D,
      LOCATIONS L,

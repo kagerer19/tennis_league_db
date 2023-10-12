@@ -1,5 +1,4 @@
 /* SQL Exercise-3 */
-
 /* 1. output of PLAYERNO, NAME of players born after 1960.  */
 SELECT PLAYERNO
 FROM PLAYERS
@@ -16,20 +15,17 @@ FROM PLAYERS
 WHERE YEAR_JOINED >= 1970
   AND YEAR_JOINED >= 1980;
 
-
 /* 4. output of PlayerId, Name, Year of Birth of players born in a leap year. */
 SELECT PLAYERNO
 FROM PLAYERS
 WHERE (MOD(YEAR_OF_BIRTH, 4) = 0 AND MOD(YEAR_OF_BIRTH, 100) <> 0)
    OR MOD(YEAR_OF_BIRTH, 400) = 0;
 
-
 /*5. output of the penalty numbers of the penalties between 50,- and 100,-.*/
 SELECT AMOUNT
 FROM PENALTIES
 WHERE AMOUNT >= 50
   AND AMOUNT <= 100;
-
 
 /*6. output of PlayerId, name of players who do not live in Stratford or Douglas.*/
 SELECT PLAYERNO, NAME
@@ -46,12 +42,10 @@ SELECT PLAYERNO, NAME
 FROM PLAYERS
 WHERE LEAGUENO IS NULL;
 
-
 /* 9. output of those employees who receive more commission than salary. */
 SELECT EMPNO, ENAME
 FROM EMP
 WHERE COMM > SAL;
-
 
 /* 10. output of all employees from department 30 whose salary is greater than or equal to 1500. */
 SELECT EMPNO, ENAME, DEPTNO
@@ -64,13 +58,11 @@ SELECT MGR
 FROM EMP
 WHERE DEPTNO NOT IN (30);
 
-
 /* 12. output of all employees from department 10 who are neither managers nor clerical workers (CLERK). */
 SELECT EMPNO, ENAME
 FROM EMP
 WHERE DEPTNO = 10
   AND JOB NOT IN ('Manager', 'Clerk');
-
 
 /* 13. output of all employees who earn between 1200,- and 1300,-. */
 SELECT EMPNO, ENAME
@@ -78,41 +70,34 @@ FROM EMP
 WHERE SAL > 1200
   AND SAL < 1300;
 
-
 /* 14. output all employees whose name is 5 characters long and begins with ALL. */
 SELECT *
 FROM EMP
 WHERE length(ENAME) = 5
   AND ENAME LIKE '%ALL%';
 
-
 /* 15. output the total salary (salary + commission) for each employee. */
 SELECT EMPNO, ENAME, SAL + NVL(COMM, 0) as TOTAL_SALARY
 FROM EMP;
-
 
 /* 16. output all employees, whose commission is over 25% of the salary. */
 SELECT *
 FROM EMP
 WHERE COMM > 0.25 * SAL;
 
-
 /* 17. searched is the average salary of all office employees. */
 SELECT round(avg(SAL))
 FROM EMP;
-
 
 /* 18. searched is the number of employees who have received a commission. */
 SELECT EMPNO, ENAME
 FROM EMP
 WHERE SAL IS NOT NULL;
 
-
 /* 19. wanted is the number of different jobs in department 30. */
 SELECT count(DISTINCT JOB)
 FROM EMP
 WHERE DEPTNO = 30;
-
 
 /* 20. wanted is the number of employees in department 30. */
 SELECT COUNT(EMPNO)
@@ -124,7 +109,6 @@ SELECT *
 FROM EMP
 WHERE HIREDATE > TO_DATE('4-JAN-1981', 'DD-MON-YYYY')
   AND HIREDATE < TO_DATE('15-APR-1981', 'DD-MON-YYYY');
-
 
 /* SQL Exercise-4 */
 /* 1. output TEAMNO of the teams in which the player with the number 27 is not captain */
@@ -394,13 +378,12 @@ ORDER BY HIRE_YEAR;
 
 
 /* 9. output all employees who have a job like an employee from CHICAGO. */
-SELECT ENAME, EMPNO, JOB
-FROM EMP
-WHERE JOB IN (SELECT DISTINCT JOB
-              FROM EMP
-              WHERE DEPTNO IN (SELECT DEPTNO
-                               FROM DEPT
-                               WHERE LOC = 'CHICAGO'));
+SELECT E.EMPNO, E.ENAME
+FROM EMP E,
+     DEPT D
+WHERE E.DEPTNO = D.DEPTNO
+  AND D.LOC = 'CHICAGO'
+  AND E.JOB IN ('CLERK', 'SALESMAN', 'ANALYST');
 
 
 
@@ -488,23 +471,12 @@ ORDER BY D.DEPTNO;
 
 /* SQL Exercise 8 */
 /* 2. display the whole hierarchy of those parts that make up P3 and P9 */
-SELECT SUB, SUPER
+SELECT LPAD(' ', 2 * (LEVEL - 1)) || SUB AS Hierarchy
 FROM PARTS
-START WITH SUPER = 'P3'
-CONNECT BY SUPER = SUB
-UNION
-SELECT SUB, SUPER
-FROM PARTS
-START WITH SUPER = 'P9'
-CONNECT BY SUPER = SUB;
-
+START WITH SUB IN ('P3', 'P9')
+CONNECT BY PRIOR SUB = SUPER;
 
 /* 3. at which hierarchy level is P12 used in P1 */
-SELECT SUB, SUPER
-FROM PARTS
-CONNECT BY PRIOR SUPER = SUB
-START WITH SUB = 'P12';
-
 SELECT SUB, MAX(LEVEL - 1) AS LEVELS
 FROM PARTS
 CONNECT BY SUPER = SUB
@@ -547,9 +519,7 @@ GROUP BY LEVEL;
 
 
 /* SQL Exercise 6 using Joins  */
-
 /* 1-5 Tennis query */
-
 /* 1. NAME, INITIALS and number of sets won for each player */
 
 SELECT P.PLAYERNO, P.NAME, P.INITIALS, SUM(M.WON) AS WON
@@ -614,10 +584,14 @@ GROUP BY EXTRACT(YEAR FROM E.HIREDATE);
 
 
 /* 9. output all employees who have a job like an employee from CHICAGO. */
-SELECT E.EMPNO, E.ENAME
-FROM EMP E
-         INNER JOIN DEPT D
-                    ON E.DEPTNO = D.DEPTNO AND D.LOC = 'CHICAGO' AND E.JOB IN ('CLERK', 'ANALYST');
+SELECT DISTINCT E1.EMPNO, E1.ENAME, E1.JOB, E1.DEPTNO, LOC
+FROM EMP E1
+         JOIN DEPT D1 ON E1.DEPTNO = D1.DEPTNO
+WHERE E1.JOB IN
+      (SELECT E2.JOB
+       FROM EMP E2
+                JOIN DEPT D2 ON E2.DEPTNO = D2.DEPTNO
+       WHERE D2.LOC = 'CHICAGO');
 
 
 
@@ -730,16 +704,27 @@ WHERE P1.PLAYERNO = 95;
 COMMIT;
 /* 5.) deleting all penalties of player 44 from 1980  */
 
-DELETE FROM PENALTIES
+DELETE
+FROM PENALTIES
 WHERE PLAYERNO = 44;
 COMMIT;
 
 /* 6.) persist changes from 1.-5. */
 
 /* 7.) deleting all penalties of players who have played at least once in a team of the second division */
+DELETE
+FROM PENALTIES
+WHERE PLAYERNO IN (SELECT PLAYERNO
+                   FROM MATCHES
+                   WHERE TEAMNO IN (SELECT TEAMNO
+                                    FROM TEAMS
+                                    WHERE DIVISION = 'SECOND'));
 
-/* 8.) deleting from 7. undoing */
-
+COMMIT;
+/* 8.) deleting from 7. undoing  In case you need to undo the deletions, use ROLLBACK
+If you execute this immediately after step 7, it will undo the deletions.
+Be careful with ROLLBACK as it can't be undone. */
+ROLLBACK;
 /* to EMP-DEPT */
 
 /* 1.)  delete all salaries that are lower than 80% of the average salary of the department, set to 80% of the average salary of the department */
