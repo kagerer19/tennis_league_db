@@ -394,7 +394,7 @@ ORDER BY HIRE_YEAR;
 
 
 /* 9. output all employees who have a job like an employee from CHICAGO. */
-SELECT ENAME, JOB
+SELECT ENAME, EMPNO, JOB
 FROM EMP
 WHERE JOB IN (SELECT DISTINCT JOB
               FROM EMP
@@ -448,7 +448,6 @@ ORDER BY NAME;
 
 
 /*  5-8 EmpDept query    */
-
 /*  5. find all employees whose salary is higher than the average salary of their department    */
 SELECT ENAME, SAL
 FROM EMP E
@@ -488,45 +487,6 @@ ORDER BY D.DEPTNO;
 
 
 /* SQL Exercise 8 */
-SELECT *
-FROM PARTS;
-/* 1. creating the PARTS table([Parts insert and create tables]) */
-insert into parts
-values ('P1', NULL, 130)
-/
-insert into parts
-values ('P2', 'P1', 15)
-/
-insert into parts
-values ('P3', 'P1', 65)
-/
-insert into parts
-values ('P4', 'P1', 20)
-/
-insert into parts
-values ('P9', 'P1', 45)
-/
-insert into parts
-values ('P5', 'P2', 10)
-/
-insert into parts
-values ('P6', 'P3', 10)
-/
-insert into parts
-values ('P7', 'P3', 20)
-/
-insert into parts
-values ('P8', 'P3', 25)
-/
-insert into parts
-values ('P12', 'P7', 10)
-/
-insert into parts
-values ('P10', 'P9', 12)
-/
-insert into parts
-values ('P11', 'P9', 21)
-/
 /* 2. display the whole hierarchy of those parts that make up P3 and P9 */
 SELECT SUB, SUPER
 FROM PARTS
@@ -590,15 +550,7 @@ GROUP BY LEVEL;
 
 /* 1-5 Tennis query */
 
-/* 1. NAME, INITIALS and number of sets won for each player
-   SELECT NAME,
-       INITIALS,
-       (SELECT SUM(WON)
-        FROM MATCHES
-        WHERE PLAYERS.PLAYERNO = MATCHES.PLAYERNO) AS SETS_WON
-FROM PLAYERS
-ORDER BY NAME, INITIALS;
-   */
+/* 1. NAME, INITIALS and number of sets won for each player */
 
 SELECT P.PLAYERNO, P.NAME, P.INITIALS, SUM(M.WON) AS WON
 FROM PLAYERS P
@@ -606,55 +558,28 @@ FROM PLAYERS P
 GROUP BY P.PLAYERNO, P.NAME, P.INITIALS;
 
 
-/* 2. NAME, PEN_DATE and AMOUNT sorted in descending order by AMOUNT
-   SELECT NAME, PEN_DATE, AMOUNT
-FROM PLAYERS,
-     PENALTIES
-WHERE PLAYERS.PLAYERNO = PENALTIES.PLAYERNO
-ORDER BY AMOUNT DESC;
-   */
+/* 2. NAME, PEN_DATE and AMOUNT sorted in descending order by AMOUNT  */
 SELECT P.NAME, pen.PEN_DATE, pen.AMOUNT
 FROM PLAYERS P
          INNER JOIN PENALTIES PEN ON P.PLAYERNO = PEN.PLAYERNO
 ORDER BY PEN.AMOUNT DESC;
 
 
-/* 3. TEAMNO, NAME (of the captain) per team
-   SELECT TEAMNO, NAME
-FROM PLAYERS,
-     TEAMS
-WHERE PLAYERS.PLAYERNO = TEAMS.PLAYERNO;
-
-   */
+/* 3. TEAMNO, NAME (of the captain) per team */
 SELECT T.TEAMNO, P.NAME
 FROM PLAYERS P
          INNER JOIN TEAMS T
                     ON P.PLAYERNO = T.PLAYERNO;
 
 
-/* 4. NAME (player name), WON, LOST of all won matches
-   SELECT NAME, WON, LOST
-FROM PLAYERS,
-     MATCHES
-WHERE PLAYERS.PLAYERNO = MATCHES.PLAYERNO
-  AND MATCHES.WON > 0;
-
-   */
+/* 4. NAME (player name), WON, LOST of all won matches */
 SELECT P.NAME, M.WON, M.LOST
 FROM PLAYERS P
          INNER JOIN MATCHES M
                     ON P.PLAYERNO = M.PLAYERNO AND M.WON > 0;
 
 
-/* 5. PLAYERNO, NAME and penalty amount for each team player. If a player has not yet received a penalty, it should still be issued. Sorting should be done in ascending order of penalty amount
-   SELECT NAME, AMOUNT, PLAYERS.PLAYERNO
-FROM PLAYERS,
-     PENALTIES
-WHERE PLAYERS.PLAYERNO = PENALTIES.PLAYERNO
-ORDER BY PLAYERNO DESC;
-
-   */
-
+/* 5. PLAYERNO, NAME and penalty amount for each team player. If a player has not yet received a penalty, it should still be issued. Sorting should be done in ascending order of penalty amount   */
 SELECT P.PLAYERNO, P.NAME, NVL(SUM(PEN.AMOUNT), 0) AS PENALTY
 FROM PLAYERS P
          INNER JOIN PENALTIES PEN
@@ -665,14 +590,7 @@ ORDER BY PENALTY;
 
 
 /* 6-9 EmptDept query */
-/* 6. in which city does the employee Allen work?
-   SELECT DEPT.LOC
-FROM EMP,
-     DEPT
-WHERE EMP.DEPTNO = DEPT.DEPTNO
-  AND EMP.ENAME = 'ALLEN';
-
-   */
+/* 6. in which city does the employee Allen work? */
 
 SELECT D.LOC, E.DEPTNO
 FROM EMP E
@@ -680,25 +598,14 @@ FROM EMP E
                     ON D.DEPTNO = E.DEPTNO AND E.ENAME = 'ALLEN';
 
 
-/* 7. search for all employees who earn more than their supervisor
-   SELECT E.EMPNO, E.ENAME
-FROM EMP E
-WHERE E.SAL > (SELECT E2.SAL FROM EMP E2 WHERE E2.EMPNO = E.MGR);
-
-   */
+/* 7. search for all employees who earn more than their supervisor */
 
 SELECT E.EMPNO, E.ENAME
 FROM EMP E
          INNER JOIN EMP E2
                     ON E2.EMPNO = E.MGR AND E.SAL > E2.SAL;
 
-/* 8. output the number of hires in each year
-   SELECT EXTRACT(YEAR FROM HIREDATE) AS HIRE_YEAR, COUNT(*) AS NUMBER_OF_HIRES
-FROM EMP
-GROUP BY EXTRACT(YEAR FROM HIREDATE)
-ORDER BY HIRE_YEAR;
-
-   */
+/* 8. output the number of hires in each year */
 SELECT EXTRACT(YEAR FROM E.HIREDATE) AS DATE_OF_HIRE, COUNT(EXTRACT(YEAR FROM E.HIREDATE)) AS "NUMBER OF HIRES"
 FROM EMP E
          INNER JOIN EMP E2
@@ -706,15 +613,7 @@ FROM EMP E
 GROUP BY EXTRACT(YEAR FROM E.HIREDATE);
 
 
-/* 9. output all employees who have a job like an employee from CHICAGO.
-   SELECT ENAME, JOB
-FROM EMP
-WHERE JOB IN (SELECT DISTINCT JOB
-              FROM EMP
-              WHERE DEPTNO IN (SELECT DEPTNO
-                               FROM DEPT
-                               WHERE LOC = 'CHICAGO'));
-   */
+/* 9. output all employees who have a job like an employee from CHICAGO. */
 SELECT E.EMPNO, E.ENAME
 FROM EMP E
          INNER JOIN DEPT D
